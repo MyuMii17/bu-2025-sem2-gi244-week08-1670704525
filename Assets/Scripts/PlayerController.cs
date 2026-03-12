@@ -6,9 +6,14 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 10f;
     public float gravityMultiplier = 1f;
     public bool gameOver = false;
+    public Animator animator;
+    public ParticleSystem dirtPtc;
+    public GameObject exploVfxPrefeb;
     private Rigidbody rb;
     private InputAction jumpAction;
     // 5.8 add audio source variable to play crash sound
+    public AudioClip audioJump;
+    public AudioClip audioCrash;
     private AudioSource audioSource;
 
     private bool isOnGround = true;
@@ -30,8 +35,8 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         Physics.gravity *= gravityMultiplier;
+        animator.SetFloat("Speed_f",1.0f);
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -42,8 +47,12 @@ public class PlayerController : MonoBehaviour
 
         if (jumpAction.triggered && isOnGround)
         {
+            dirtPtc.Stop();
             rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
             isOnGround = false;
+            animator.SetTrigger("Jump_trig");
+            audioSource.PlayOneShot(audioJump);
+            //animator.SetBool("Grounded",false);
         }
     }
 
@@ -52,11 +61,18 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isOnGround = true;
+            dirtPtc.Play();
+            //animator.SetBool("Grounded",true);
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
+            dirtPtc.Stop();
+            animator.SetBool("Death_b",true);
+            animator.SetInteger("DeathType_int",Random.Range(1,3));
             Debug.Log("Game Over!");
             gameOver = true;
+            Instantiate(exploVfxPrefeb,transform.position,Quaternion.identity);
+            audioSource.PlayOneShot(audioCrash);
         }
     }
 }
