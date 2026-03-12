@@ -22,11 +22,9 @@ public class CharacterController : MonoBehaviour
     private Vector2 moveInput;
     private bool isCrouching;
     private bool isUsingHandgun;
-    private BoxCollider boxCollider;
 
     void Awake()
     {
-        boxCollider = GetComponent<BoxCollider>();
         moveAction = InputSystem.actions.FindAction("Move");
         crouchAction = InputSystem.actions.FindAction("Crouch");
         useWeaponAction = InputSystem.actions.FindAction("UseWeapon");
@@ -46,13 +44,10 @@ public class CharacterController : MonoBehaviour
         if (crouchAction != null)
         {
             isCrouching = crouchAction.ReadValue<float>() > 0.5f;
-            boxCollider.size = new Vector3(1,1f,1);
-            
         }
         else
         {
             isCrouching = false;
-            boxCollider.size = new Vector3(1,2.87138319f,1);
         }
 
         // Move the character horizontally based on input.x
@@ -74,6 +69,18 @@ public class CharacterController : MonoBehaviour
         if (anim != null)
         {
             float speed = Mathf.Abs(moveInput.y);
+            anim.SetFloat("Speed_f",speed);
+            anim.SetBool("Crouch_b",isCrouching);
+            if (isUsingHandgun)
+            {
+                anim.SetInteger("WeaponType_int",1);
+                handgun.SetActive(true);
+            }
+            else
+            {
+                anim.SetInteger("WeaponType_int",0);
+                handgun.SetActive(false);
+            }
         }
     }
 }
